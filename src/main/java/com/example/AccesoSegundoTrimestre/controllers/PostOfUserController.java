@@ -3,6 +3,7 @@ package com.example.AccesoSegundoTrimestre.controllers;
 import com.example.AccesoSegundoTrimestre.dto.PostOfUserDto;
 import com.example.AccesoSegundoTrimestre.services.PostOfUserServiceI;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/users")
+@Tag(name = "Publications of users", description = "Endpoints to manage user publications")
 public class PostOfUserController {
 
     private final PostOfUserServiceI postOfUserMngm;
@@ -55,6 +57,7 @@ public class PostOfUserController {
      * @return ResponseEntity con la lista de PostOfUserDto que contienen las publicaciones de los usuarios seguidos.
      */
     @GetMapping("/publications/followed")
+    @Operation(summary = "Get publications of followed users")
     public ResponseEntity<List<PostOfUserDto>> getPublicationsOfFollowedUsers(Authentication authentication) {
         String username = authentication.getName();
 
@@ -69,6 +72,7 @@ public class PostOfUserController {
      * @return ResponseEntity con la lista de PostOfUserDto que contienen todas las publicaciones de todos los usuarios.
      */
     @GetMapping("/publications")
+    @Operation(summary = "Get all publications")
     public ResponseEntity<List<PostOfUserDto>> getAllPublications() {
         List<PostOfUserDto> postOfUserDtos = postOfUserMngm.getAllPublications();
 

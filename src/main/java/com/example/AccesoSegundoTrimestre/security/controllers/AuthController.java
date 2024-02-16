@@ -5,6 +5,7 @@ import com.example.AccesoSegundoTrimestre.security.model.LoginRequest;
 import com.example.AccesoSegundoTrimestre.security.model.RegisterRequest;
 import com.example.AccesoSegundoTrimestre.security.services.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @CrossOrigin
 @Order(1)
+@Tag(name = "Authentication", description = "Endpoints for user authentication")
 public class AuthController {
 
     @Autowired
@@ -31,7 +33,7 @@ public class AuthController {
      * @return Respuesta con el token de autenticación.
      */
     @PostMapping(value = "/register")
-    @Operation(summary = "register")
+    @Operation(summary = "Register a new user")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authMngm.register(request));
     }
@@ -43,7 +45,7 @@ public class AuthController {
      * @return Respuesta con el token de autenticación.
      */
     @PostMapping(value = "/login")
-    @Operation(summary = "login")
+    @Operation(summary = "Login with username and password")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authMngm.login(request));
     }

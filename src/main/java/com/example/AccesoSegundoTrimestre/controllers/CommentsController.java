@@ -3,6 +3,8 @@ package com.example.AccesoSegundoTrimestre.controllers;
 import com.example.AccesoSegundoTrimestre.dto.CommentsDto;
 import com.example.AccesoSegundoTrimestre.services.CommentsServiceI;
 import com.example.AccesoSegundoTrimestre.services.CommentsServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequestMapping("users/comments")
+@Tag(name = "Comments", description = "Endpoints to manage comments on posts")
 public class CommentsController {
 
     private final CommentsServiceI commentsMngm;
@@ -40,6 +43,7 @@ public class CommentsController {
      * @return ResponseEntity con el comentario creado y estado 201 (CREATED).
      */
     @PostMapping("/create/{publicationID}")
+    @Operation(summary = "Add comment to post")
     public ResponseEntity<CommentsDto> addComment(@PathVariable Long publicationID,
                                                   @RequestParam(value = "text") String text,
                                                   @RequestParam(value = "image", required = false) MultipartFile image) {

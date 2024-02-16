@@ -3,6 +3,7 @@ package com.example.AccesoSegundoTrimestre.controllers;
 import com.example.AccesoSegundoTrimestre.services.FollowServiceI;
 import com.example.AccesoSegundoTrimestre.services.UserServiceI;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
+@Tag(name = "Follow", description = "Endpoints to manage user following")
 public class FollowController {
 
     @Autowired
@@ -51,6 +53,7 @@ public class FollowController {
      * @return ResponseEntity con el estado 200 (OK) si la operación se realizó con éxito.
      */
     @PostMapping("/unfollow/{followedUsername}")
+    @Operation(summary = "Unfollow user")
     public ResponseEntity<Void> unfollowedUser(@PathVariable String followedUsername, Authentication authentication) {
         String followerUsername = authentication.getName();
 
