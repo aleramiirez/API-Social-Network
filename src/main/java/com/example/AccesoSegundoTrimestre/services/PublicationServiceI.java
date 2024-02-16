@@ -5,20 +5,38 @@ import com.example.AccesoSegundoTrimestre.persistence.model.Publication;
 
 import java.util.List;
 
+/**
+ * Interfaz para definir los servicios relacionados con las publicaciones.
+ *
+ * @author Alejandro Ramírez
+ */
 public interface PublicationServiceI {
 
-    List<PublicationDto> getAllPublications();
+    /**
+     * Agrega una nueva publicación.
+     *
+     * @param username Nombre de usuario del autor de la publicación.
+     * @param text Contenido de la publicación.
+     * @return DTO de la publicación agregada.
+     */
+    PublicationDto addPublication(String username, String text);
 
-    List<PublicationDto> getPublicationsByUser(String username);
+    /**
+     * Actualiza una publicación existente.
+     *
+     * @param publicationID ID de la publicación a actualizar.
+     * @param username Nombre de usuario del autor de la publicación.
+     * @param text Nuevo contenido de la publicación.
+     * @return DTO de la publicación actualizada.
+     */
+    PublicationDto updatePublication(Long publicationID, String username, String text);
 
-    PublicationDto getPublicationsById(long publicationID);
-
-    List<PublicationDto> getPublicationsByFollowedUsers(String username);
-
-    Publication insertPublication(Publication publicationDTO);
-
-    Publication editPublication(Publication publication);
-
-    void deletePublication(Long publicationId);
+    /**
+     * Elimina una publicación existente.
+     *
+     * @param publicationID ID de la publicación a eliminar.
+     * @param username Nombre de usuario del autor de la publicación.
+     */
+    void deletePublication(Long publicationID, String username);
 
 }

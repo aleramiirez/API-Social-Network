@@ -1,90 +1,135 @@
 package com.example.AccesoSegundoTrimestre.services;
 
+import com.example.AccesoSegundoTrimestre.dto.CommentsDto;
 import com.example.AccesoSegundoTrimestre.dto.PublicationDto;
+import com.example.AccesoSegundoTrimestre.persistence.model.Comments;
 import com.example.AccesoSegundoTrimestre.persistence.model.Publication;
 import com.example.AccesoSegundoTrimestre.persistence.model.User;
 import com.example.AccesoSegundoTrimestre.persistence.repository.PublicationRepositoryI;
 import com.example.AccesoSegundoTrimestre.persistence.repository.UserRepositoryI;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
+/**
+ * Implementación de los servicios relacionados con las publicaciones.
+ *
+ * @author Alejandro Ramírez
+ */
 @Service
 public class PublicationServiceImpl implements PublicationServiceI{
 
+    private final PublicationRepositoryI publicationRepo;
+    private final UserRepositoryI userRepo;
+
+    /**
+     * Constructor de la clase.
+     *
+     * @param userRepo Repositorio de usuarios.
+     * @param publicationRepo Repositorio de publicaciones.
+     */
     @Autowired
-    private PublicationRepositoryI publicationRepo;
+    public PublicationServiceImpl(PublicationRepositoryI publicationRepo, UserRepositoryI userRepo) {
+        this.publicationRepo = publicationRepo;
+        this.userRepo = userRepo;
+    }
 
-    @Autowired
-    private UserRepositoryI userRepo;
-
+    /**
+     * Agrega una nueva publicación.
+     *
+     * @param username Nombre de usuario del autor de la publicación.
+     * @param text Contenido de la publicación.
+     * @return DTO de la publicación agregada.
+     */
     @Override
-    public List<PublicationDto> getAllPublications() {
-        List<Publication> publication = publicationRepo.findAll();
-        List<PublicationDto> publicationDtos = new ArrayList<>();
+    public PublicationDto addPublication(String username, String text) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-        for (Publication publication1 : publication) {
-            PublicationDto publicationDto = new PublicationDto(publication1.getAuthor(),
-                    publication1.getText(), publication1.getCreateDate(), publication1.getEditionDate());
+        Publication publication = new Publication();
+        publication.setText(text);
+        publication.setAuthorID(user);
 
-            publicationDtos.add(publicationDto);
+        Publication savedPublication = publicationRepo.save(publication);
+        return convertToDto(savedPublication);
+    }
+
+    /**
+     * Actualiza una publicación existente.
+     *
+     * @param publicationID ID de la publicación a actualizar.
+     * @param username Nombre de usuario del autor de la publicación.
+     * @param text Nuevo contenido de la publicación.
+     * @return DTO de la publicación actualizada.
+     */
+    @Override
+    public PublicationDto updatePublication(Long publicationID, String username, String text) {
+        Publication publication = publicationRepo.findById(publicationID)
+                .orElseThrow(() -> new RuntimeException("Publication not found"));
+        if (!publication.getAuthorID().getUsername().equals(username)) {
+            throw new RuntimeException("You do not have permission to update this post");
         }
+        publication.setText(text);
 
-        return publicationDtos;
+        Publication updatedPost = publicationRepo.save(publication);
+        return convertToDto(updatedPost);
     }
 
+    /**
+     * Elimina una publicación existente.
+     *
+     * @param publicationID ID de la publicación a eliminar.
+     * @param username Nombre de usuario del autor de la publicación.
+     */
     @Override
-    public List<PublicationDto> getPublicationsByUser(String username) {
-        User user = userRepo.findByUsername(username);
-        List<Publication> publication = new ArrayList<>();
-        publication.addAll(user.getPublicationsList());
+    public void deletePublication(Long publicationID, String username) {
+        Publication publication = publicationRepo.findById(publicationID)
+                .orElseThrow(() -> new RuntimeException("Publication not found"));
 
-        List<PublicationDto> publicationDtos = new ArrayList<>();
-
-        for (Publication publication1: publication) {
-            PublicationDto publicationDto = new PublicationDto(publication1.getAuthor(),
-                    publication1.getText(), publication1.getCreateDate(), publication1.getEditionDate());
-
-            publicationDtos.add(publicationDto);
+        // Verificar que el usuario actual sea el autor de la publicación
+        if (!publication.getAuthorID().getUsername().equals(username)) {
+            throw new RuntimeException("You do not have permission to delete this post");
         }
-
-        return publicationDtos;
+        // Eliminar la publicación
+        publicationRepo.delete(publication);
     }
 
-    @Override
-    public PublicationDto getPublicationsById(long publicationID) {
-        Optional<Publication> publication = publicationRepo.findById(publicationID);
-        if (publication.isPresent()) {
-            PublicationDto publicationDto = new PublicationDto(
-                    publication.get().getAuthor(),
-                    publication.get().getText(),
-                    publication.get().getCreateDate(),
-                    publication.get().getEditionDate()
-            );
-        }
-        return null;
+    /**
+     * Convierte una entidad Publication en su respectivo DTO.
+     *
+     * @param publication Entidad Publication a convertir.
+     * @return DTO de la publicación.
+     */
+    private PublicationDto convertToDto(Publication publication) {
+        PublicationDto publicationDto = new PublicationDto();
+        publicationDto.setPublicationID(publication.getPublicationID());
+        publicationDto.setText(publication.getText());
+        publicationDto.setCreationDate(publication.getCreateDate());
+        publicationDto.setEditDate(publication.getEditionDate());
+        List<CommentsDto> comments = Optional.ofNullable(publication.getComments())
+                .map(comments1 -> comments1.stream().map(this::convertToDtoComments).collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+
+        publicationDto.setComments(comments);
+
+        return publicationDto;
     }
 
-    @Override
-    public List<PublicationDto> getPublicationsByFollowedUsers(String username) {
-        return null;
-    }
+    /**
+     * Convierte una entidad Comments en su respectivo DTO.
+     *
+     * @param comment Entidad Comments a convertir.
+     * @return DTO del comentario.
+     */
+    private CommentsDto convertToDtoComments(Comments comment) {
+        CommentsDto commentsDto = new CommentsDto();
+        commentsDto.setCommentID(comment.getCommentID());
+        commentsDto.setText(comment.getText());
+        commentsDto.setCreationDate(comment.getCreationDate());
 
-    @Override
-    public Publication insertPublication(Publication publication) {
-        return publicationRepo.save(publication);
-    }
-
-    @Override
-    public Publication editPublication(Publication publication) {
-        return publicationRepo.save(publication);
-    }
-
-    @Override
-    public void deletePublication(Long publicationId) {
-        publicationRepo.deleteById(publicationId);
+        return commentsDto;
     }
 }
