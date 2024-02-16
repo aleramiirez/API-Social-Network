@@ -63,9 +63,6 @@ public class FollowServiceImpl implements FollowServiceI {
      */
     @Override
     public void unfollowUser(String followerUsername, String followedUsername) {
-        User follower = getUserByUsername(followerUsername);
-        User followed = getUserByUsername(followedUsername);
-
         followRepo.deleteByFollowerUsernameAndFollowedUsername(followerUsername, followedUsername);
     }
 

@@ -84,9 +84,9 @@ public class UserServiceImpl implements UserServiceI{
     public List<UserDto> getFollowers(String username) {
         User user = findUserByUsername(username);
 
-        List<Follow> userToFollow = followRepo.findByFollowed(user);
+        List<Follow> follows = followRepo.findByFollowed(user);
 
-        List<UserDto> followers = userToFollow.stream()
+        List<UserDto> followers = follows.stream()
                 .map(Follow::getFollower)
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
