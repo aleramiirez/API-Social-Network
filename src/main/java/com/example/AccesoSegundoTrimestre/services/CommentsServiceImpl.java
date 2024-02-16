@@ -1,5 +1,6 @@
 package com.example.AccesoSegundoTrimestre.services;
 
+import com.example.AccesoSegundoTrimestre.controllers.ExceptionHandler.CustomExceptionHandler;
 import com.example.AccesoSegundoTrimestre.dto.CommentsDto;
 import com.example.AccesoSegundoTrimestre.dto.PublicationDto;
 import com.example.AccesoSegundoTrimestre.persistence.model.Comments;
@@ -11,7 +12,9 @@ import com.example.AccesoSegundoTrimestre.persistence.repository.UserRepositoryI
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
